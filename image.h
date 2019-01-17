@@ -37,7 +37,7 @@ struct ColorImage {
 	double calc_qdelta(int i, int p) const;
 
 	void load_quant_data(const char *fname);
-	
+
 	double * calc_d();
 
 	double * r_calc_d(int r);
@@ -48,13 +48,14 @@ struct ColorImage {
 struct GrayImage {
 
 	double * data;
-	const int w, h, N;
+	int w, h, N;
 	int i,j,k;
 
 	//this will shift our data to best match the 
 	//luminance channel of s.
 	void post_solve(const ColorImage &s);
 
+	GrayImage() : data(NULL) {}
 	GrayImage( ColorImage &s) : data(new double[s.N]), w(s.w), h(s.h), N(s.N) {
 		for(i=0;i<N;i++) 
 			data[i]=(s.data)[i].l;

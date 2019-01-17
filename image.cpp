@@ -59,7 +59,17 @@ rgb *readPPM(const char *filename, int *cols, int *rows, int * colors)
 		if(image) 
         {
 			// Read the data
-			if(binary)	fread(image, sizeof(rgb), (*rows) * (*cols), fp);
+			if(binary)	
+			{
+				unsigned char crgb[3 * (*rows) * (*cols)];
+				fread(image, sizeof(crgb), (*rows) * (*cols), fp);
+				for(int x=0;x<*rows;x++) 
+                    for(int y=0;y<*cols;y++) 
+					{
+						int tmp = x + *rows * y;
+						image[tmp]=rgb((int)(crgb[tmp*3]), (int)(crgb[tmp*3+1]), (int)(crgb[tmp*3+2]));
+					}
+			}
 			else 
             {
 				for(int x=0;x<*rows;x++) 
@@ -67,6 +77,7 @@ rgb *readPPM(const char *filename, int *cols, int *rows, int * colors)
                     {
 					    int r, g, b;
 					    fscanf(fp, "%d %d %d", &r, &g, &b);
+						//printf("%d %d %d\n", r, g, b);
 					    image[x + *rows * y]=rgb(r, g, b);
 				    }
 			}
@@ -82,6 +93,7 @@ rgb *readPPM(const char *filename, int *cols, int *rows, int * colors)
 
 void ColorImage::load(const char * fname) 
 {		
+	freopen("image.out", "w", stdout);
 	if(data) delete [] data;
 
 	int c;
@@ -89,6 +101,9 @@ void ColorImage::load(const char * fname)
 	
 	N = w * h;
 	printf("image loaded, w: %d, y: %d, c: %d.\n", w, h, c);
+
+	for (int i = 0; i < N; i++)
+		printf("%d,%d,%d\t", colors[i].r, colors[i].g, colors[i].b);
 
 	data = new cie_lab[N];
 
@@ -296,3 +311,4 @@ double ColorImage::calc_qdelta(int i, int p) const
 	if(fabs(dL)>dC) return qdata[p].second*dL;
 	return qdata[p].second*dC*(  (cos(theta)*(a.a-b.a) + sin(theta)*(a.b-b.b)) > 0 ? 1 : -1);
 }
+
